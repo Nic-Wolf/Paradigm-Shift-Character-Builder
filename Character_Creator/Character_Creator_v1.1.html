@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+<!-- ****************************************************************** -->
+<!-- Title: Character Sheet HTML 										-->
+<!-- Purpose: Markup for Character Creator	 							-->
+<!-- Author: Nic Wolf 													-->
+<!-- Sources: tooltips - webdesignerdepot.com							-->
+<!-- Revision: 1.1 (04/20/2014)											-->
+<!-- ****************************************************************** -->
+
+<head>
+<title>Character Sheet v.1.1</title>
+
+<style type="text/css">
+/*CSS*/
+
+	body {
+		font-family: tahoma;
+		text-align: center;
+		background-color: #ddd;
+	}
+
+	table {
+		margin: auto;
+	}
+
+	table td {
+		line-height: 1.125em;
+		padding: 0px 2px;
+		background-color: #888;
+		border: solid 2px transparent;
+		height: 24px;
+	}
+
+	input {
+		width: 27px;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	/* Tooltips */
+	.tooltip:hover:after {
+		content: attr(tooltip);
+		color: black;
+		font: 0.8em sans-serif;
+		text-align: left;
+		position: absolute;
+		z-index: 98;
+		width: 220px;
+		margin: 26px 0px 0px -21px;
+		padding: 5px;
+		background: #ddd;
+	}
+
+	.tooltip:hover:before{
+		position: absolute;
+		z-index: 99;
+		margin: 20px 0 0px 21px;
+		border: solid;
+		border-color: #ddd transparent;
+		border-width: 0px 6px 6px 6px;
+		content: "";
+	}
+
+	.top-div {
+		margin: auto;
+	}
+
+	.top-div ul li {
+		list-style: none;
+	}
+
+	.divStats {
+		background-color: #acd;
+		margin: auto;
+		width: 254px;
+		min-width: 253px;
+		border: solid 2px #79a;
+	}
+
+	.statHeader td {
+		font-size: 0.6em;
+		background-color: transparent;
+	}
+
+	.cssStatTitle {
+		font-size: 17px;
+		color: white;
+		background-color: black;
+		width: 44px;
+		font-weight: bolder;
+		border: solid 2px black;
+	}
+
+	.tablebtn {
+		border: none;
+		background-color: transparent;
+	}
+
+	.txtStatValue {
+		color: red;
+	}
+
+	.race-desc {
+		margin: 30px auto;
+		width: 400px;
+		border: solid 2px black;
+		visibility: hidden;
+	}
+
+</style>
+
+<script type="text/javascript">
+//Variables which Don't need to load with the page
+/*************************************************************************/
+//Data Structre : Races
+	var Race = {
+		//Current used for validation
+		Current: {
+			StatPool: 0,
+			STR: 0,
+			DEX: 0,
+			AGI: 0,
+			SPD: 0,
+			INT: 0,
+			HP: 0,
+			Mana: 0
+		},
+
+		Cheiren: {
+			StatPool: 35,
+			STR: 2,
+			DEX: 2,
+			AGI: 2,
+			SPD: 2,
+			INT: 2,
+			HP: 1,
+			Mana: 1
+		},
+
+		Geulian: {
+			StatPool: 45,
+			STR: 0,
+			DEX: 4,
+			AGI: 4,
+			SPD: 0,
+			INT: 2,
+			HP: 4,
+			Mana: 2
+		},
+
+		Human: {
+			StatPool: 35,
+			STR: 2,
+			DEX: 2,
+			AGI: 2,
+			SPD: 2,
+			INT: 2,
+			HP: 2,
+			Mana: 0
+		},
+
+		Kitsune: {
+			StatPool: 35,
+			STR: 0,
+			DEX: 3,
+			AGI: 3,
+			SPD: 4,
+			INT: 0,
+			HP: 1,
+			Mana: 1
+		},
+
+		Raukan: {
+			StatPool: 45,
+			STR: 0,
+			DEX: 2,
+			AGI: 2,
+			SPD: 2,
+			INT: 5,
+			HP: 0,
+			Mana: 5
+		},
+
+		Saurian: {
+			StatPool: 55,
+			STR: 4,
+			DEX: 3,
+			AGI: 3,
+			SPD: 3,
+			INT: 1,
+			HP: 5,
+			Mana: 1
+		},
+
+		Thaen: {
+			StatPool: 35,
+			STR: 0,
+			DEX: 2,
+			AGI: 1,
+			SPD: 0,
+			INT: 2,
+			HP: 3,
+			Mana: 4
+		},
+
+		Ursidae: {
+			StatPool: 55,
+			STR: 8,
+			DEX: 2,
+			AGI: 0,
+			SPD: 0,
+			INT: 2,
+			HP: 8,
+			Mana: 0
+		}
+	};
+
+//Data Structure : Classes
+	var Class = {
+
+		//Current used for validation
+		Current: {
+			HP: 0,
+			Mana: 0
+		},
+
+		Brawler: {
+			HP: 10,
+			Mana: 1
+		},
+
+		Champion: {
+			HP: 9,
+			Mana: 2
+		},
+
+		Doctor: {
+			HP: 4,
+			Mana: 4
+		},
+
+		Drifter: {
+			HP: 3,
+			Mana: 3
+		},
+
+		Gunslinger: {
+			HP: 6,
+			Mana: 3
+		},
+
+		Mage: {
+			HP: 1,
+			Mana: 6
+		},
+
+		Sniper: {
+			HP: 3,
+			Mana: 3
+		},
+
+		Soldier: {
+			HP: 8,
+			Mana: 2
+		},
+	};
+
+//Page Load
+/*************************************************************************/
+window.onload = Init;
+
+function Init() {
+// HTML Object Variables
+	var txtLevel = document.getElementById("txtLevel");
+	var selRace = document.getElementById("selRace");
+	var selClass = document.getElementById("selClass");
+	var txtStatPoints = document.getElementById("txtStatPoints");
+	var txtTotalSTR = document.getElementById("txtTotalSTR");
+	var txtTotalDEX = document.getElementById("txtTotalDEX");
+	var txtTotalAGI = document.getElementById("txtTotalAGI");
+	var txtTotalSPD = document.getElementById("txtTotalSPD");
+	var txtTotalINT = document.getElementById("txtTotalINT");
+	var txtTotalHP = document.getElementById("txtTotalHP");
+	var txtTotalMana = document.getElementById("txtTotalMana");
+	var divRaceDesc = document.getElementById("divRaceDesc");
+
+// Event Handlers
+	alert("Welcome to the Paradigm Shift Character Creation Tool!\n\nPlease select a Race and Class.");
+//Racial Bonuses v.1
+/*************************************************************************/
+	document.getElementById("selRace").onchange = 
+		function() {
+			selectRace();
+			lvlBonus();
+			statTotal();
+			valueColor();
+			rollMod();
+		} // end Racial Bonuses
+//Class Bonuses v.1
+/*************************************************************************/
+	document.getElementById("selClass").onchange = 
+		function() {
+			selectClass();
+			lvlBonus();
+			statTotal();
+			valueColor();
+			rollMod();
+		}
+//Level Up/ Down Multiplier Buttons v.1
+/*************************************************************************/
+	document.getElementById("btnLevelMinus").onclick = 
+		function() {
+			if (txtLevel.value > 1) {
+				txtLevel.value -= Number(1);
+			}
+			lvlBonus();
+			statTotal();
+			rollMod();
+			valueColor();
+		}
+
+	document.getElementById("btnLevelPlus").onclick = 
+		function() {
+			txtLevel.value = Number(txtLevel.value) + 1;
+			lvlBonus();
+			statTotal();
+			rollMod();
+			valueColor();
+		}
+//Stat Point Counter v.3
+/*************************************************************************/
+//STR buttons
+	document.getElementById("btnMinusSTR").onclick =
+		function() {
+			if (txtTotalSTR.value > (Race.Current.STR * txtLevel.value)) {
+				txtTotalSTR.value--;
+				txtStatPoints.value++;
+				rollMod();
+				valueColor();
+			}
+		} // end btnMinusSTR
+	document.getElementById("btnPlusSTR").onclick = 
+ 		function() {
+ 			if (txtStatPoints.value > 0) {
+	 			txtStatPoints.value--;
+	 			txtTotalSTR.value++;
+	 			rollMod();
+	 			valueColor();
+	 		}
+ 		} //end btnPlusSTR
+
+//DEX buttons
+	document.getElementById("btnMinusDEX").onclick =
+		function() {
+			if (txtTotalDEX.value > (Race.Current.DEX  * txtLevel.value)) {
+				txtTotalDEX.value--;
+				txtStatPoints.value++;
+				rollMod();
+				valueColor();
+			}
+		} //end btnMinusDEX
+	document.getElementById("btnPlusDEX").onclick = 
+ 		function() {
+ 			if (txtStatPoints.value > 0) {
+	 			txtStatPoints.value--;
+	 			txtTotalDEX.value++;
+	 			rollMod();
+	 			valueColor();
+	 		}
+ 		} // end btnPlusDEX
+
+//AGI buttons
+	document.getElementById("btnMinusAGI").onclick =
+		function() {
+			if (txtTotalAGI.value > (Race.Current.AGI * txtLevel.value)) {
+				txtTotalAGI.value--;
+				txtStatPoints.value++;
+				rollMod();
+				valueColor();
+			}
+		} //end btnMinusAGI
+	document.getElementById("btnPlusAGI").onclick = 
+ 		function() {
+ 			if (txtStatPoints.value > 0) {
+	 			txtStatPoints.value--;
+	 			txtTotalAGI.value++;
+	 			rollMod();
+	 			valueColor();
+	 		}
+ 		} // end btnPlusAGI
+
+//SPD buttons
+	document.getElementById("btnMinusSPD").onclick =
+		function() {
+			if (txtTotalSPD.value > (Race.Current.SPD * txtLevel.value)) {
+				txtTotalSPD.value--;
+				txtStatPoints.value++;
+				rollMod();
+				valueColor();
+			}
+		} //end btnMinusSPD
+	document.getElementById("btnPlusSPD").onclick = 
+ 		function() {
+ 			if (txtStatPoints.value > 0) {
+	 			txtStatPoints.value--;
+	 			txtTotalSPD.value++;
+	 			rollMod();
+	 			valueColor();
+	 		}
+ 		} // end btnPlusSPD
+
+//INT buttons
+	document.getElementById("btnMinusINT").onclick =
+		function() {
+			if (txtTotalINT.value > (Race.Current.INT * txtLevel.value)) {
+				txtTotalINT.value--;
+				txtStatPoints.value++;
+				rollMod();
+				valueColor();
+			}
+		} //end btnMinusINT
+	document.getElementById("btnPlusINT").onclick = 
+ 		function() {
+ 			if (txtStatPoints.value > 0) {
+	 			txtStatPoints.value--;
+	 			txtTotalINT.value++;
+	 			rollMod();
+	 			valueColor();
+	 		}
+ 		} // end btnPlusINT
+
+//HP buttons
+	document.getElementById("btnMinusHP").onclick =
+		function() {
+			if (txtTotalHP.value > ((Race.Current.HP + Class.Current.HP) * txtLevel.value)) {
+				txtTotalHP.value--;
+				txtStatPoints.value++;
+				rollMod();
+				valueColor();
+			}
+		} //end btnMinusDEX
+	document.getElementById("btnPlusHP").onclick = 
+ 		function() {
+ 			if (txtStatPoints.value > 0) {
+	 			txtStatPoints.value--;
+	 			txtTotalHP.value++;
+	 			rollMod();
+	 			valueColor();
+	 		}
+ 		} // end btnPlusHP
+
+//Mana buttons
+	document.getElementById("btnMinusMana").onclick =
+		function() {
+			if (txtTotalMana.value > ((Race.Current.Mana + Class.Current.Mana) * txtLevel.value)) {
+				txtTotalMana.value--;
+				txtStatPoints.value++;
+				rollMod();
+				valueColor();
+			}
+		} //end btnMinusMana
+	document.getElementById("btnPlusMana").onclick = 
+ 		function() {
+ 			if (txtStatPoints.value > 0) {
+	 			txtStatPoints.value--;
+	 			txtTotalMana.value++;
+	 			rollMod();
+	 			valueColor();
+	 		}
+ 		} // end btnPlusMana
+
+} // end Init()
+
+//Race Selector v.2
+/*************************************************************************/
+function selectRace() {
+	switch (selRace.value) {
+		case "Human":
+			Race.Current = Race.Human;
+			divRaceDesc.style.visibility = "visible";
+			divRaceDesc.innerHTML = 
+				"<h2>Humans</h2> <p>(Homo Sapien Sapien... probably)</p>" +
+				"<br><strong>Strengths: None | Weaknesses: Mana</strong>" +
+				"<br><p>Humans Possess no major strengths or flaws. They are the least-common race in the world. Characteristically, Humans generally dissaprove of magic use, and tend to distrust all Altered Peoples.</p>" +
+				"<br><strong>Special:</strong><p> Humans gain an additional 2 Skill Points per Level</p>" +
+				"<br><strong>Level-Up Rate: Fast</strong>";
+			break;
+		case "Thaen":
+			Race.Current = Race.Thaen;
+			divRaceDesc.style.visibility = "visible";
+			divRaceDesc.innerHTML = 
+				"<h2>Thaen</h2> <p>(Tree People)</p>" +
+				"<br><strong>Strengths: HP, Mana | Weaknesses: STR, SPD</strong>" +
+				"<br><p>Thaen are known for their appreciation of nature and solitude, and many believe they were altered from the trees themselves, rather than Humans. They possess a strong connection to the currents of the greater aether. They excel in magical arts.</p>" + 
+				"<br><strong>Special:</strong><p> During the day, a Thaen has a reserve pool of X HP, which they may divide and use throughout the day to heal themselves. However, the regeneration can only activate in direct sunlight.</p>" +
+				"<br><strong>Level-Up Rate: Fast</strong>";
+			break;
+		case "Cheiren":
+			Race.Current = Race.Cheiren;
+			divRaceDesc.style.visibility = "visible";
+			divRaceDesc.innerHTML =
+				"<h2>Cheiren</h2> <p>(Dr.Jekyl)</p>" +
+				"<br><strong>Strengths: None | Weaknesses: None</strong>" +
+				"<br><p>Cheiren hold a poor reputation among the other Altered Peoples. Loose cannons, known for their ability to lose control at any moment. They frequently use their similar looks to Humans to just pass off as them, prefering the Human prejudice to theirs.</p>" +
+				"<br><strong>Special:</strong><p> Once per day, a Cheiren may transform, mutating into a hybrid of their human forms and the Ashen beasts their lineage inevitably fully beomces. When transformed, the Cheiren's STR, AGI, SPD and HP are multiplied by 2. Transforming into and out of this form takes 3 rounds each. A cheiren may remain transformed for their level multiplied by 5 in minutes, (each round lasts roughly 4 seconds).</p>" +
+				"<br><strong>Level-Up Rate: Moderate</strong>";
+			break;
+		case "Kitsune":
+			Race.Current = Race.Kitsune;
+			divRaceDesc.style.visibility = "visible";
+			divRaceDesc.innerHTML = 
+				"<h2>Kitsune</h2><p> (Fox People)</p>" +
+				"<br><strong>Strengths: DEX, AGI, SPD | Weaknesses: STR, INT</strong>" +
+				"<br><p>Kitsune are flighty, fickle, and friendly. They were the first to pioneer the wastes after The Event. Known for their gumption and interest in other people's affairs.</p>" +
+				"<br><strong>Special:</strong><p> Kitsune add their level to all Speech Checks.</p>" +
+				"<br><strong>Special:</strong><p> Kitsune are telepathic, up to a range of 100' plus 20' per level. Only consenting individuals may be connected with. Kitsune know without location, the approximate range of anyone they are telepathically linked with.</p>" +
+				"<br><strong>Level-Up Rate: Fast<strong>";
+			break;
+		case "Raukan":
+			Race.Current = Race.Raukan;
+			divRaceDesc.style.visibility = "visible";
+			divRaceDesc.innerHTML = 
+				"<h2>Raukan</h2><p> (Cat People)</p>" +
+				"<br><strong>Strengths: INT, Mana | Weaknesses: STR, HP</strong>" +
+				"<br><p>Raukans are calm, yet passionate. They have a drive for knowledge, and have a distinct affinity for magic. while they do not have the stamina for magical arts as the Thaen do, they are far more potent with the manipulations they perform.</p>" +
+				"<br><strong>Special:</strong><p> Raukans double all bonuses on Detect Checks and Search Checks</p>" +
+				"<br><strong>Special:</strong><p> Once per day, a Raukan can erect a barrier with a range of their level multiplied by 5. This barrier immediately dissipates all magic within its perimeter. The Raukan cannot make any Full Actions while projecting this barrier. This ability is treated like a spell, and costs 2 Mana per turn.</p>" +
+				"<br><strong>Level-Up Rate: Moderate</strong>";
+			break;
+		case "Saurian":
+			Race.Current = Race.Saurian;
+			divRaceDesc.style.visibility = "visible";
+			divRaceDesc.innerHTML = 
+			"<h2>Saurians</h2><p>Lizard People</p>" +
+			"<br><strong>Strengths: STR, DEX, AGI, SPD, HP | Weaknesses: INT, Mana</strong>" +
+			"<br><p>Saurians are industrious and tough. They're simple-minded, but dedicated to their work, and are well-known for reverse-engineering old-world artifacts. Saurian alloys are considered some of the most valuable and durable materials outside of magical creation.</p>" +
+			"<br><strong>Special:</strong><p> Saurians completely recover their HP from a Resting Phase, regardless of the duration.</p>" +
+			"<br><strong>Special:</strong><p> Saurians have a Natural AD of 20.</p>" +
+			"<br><strong>Special:</strong><p> Saurians add twice their level to Engineering Checks.</p>" +
+			"<br><strong>Level-Up Rate: Slow</strong>";
+			break;
+		case "Ursidae":
+			Race.Current = Race.Ursidae;
+			divRaceDesc.style.visibility = "visible";
+			divRaceDesc.innerHTML = 
+			"<h2>Ursidae</h2><p>They're friggin' bears.</p>" +
+			"<br><strong>Strengths: STR, HP | Weaknesses: AGL, SPD, Mana</strong>" +
+			"<br><p>Unlike the other Altered Peoples, the Ursidae didn't originate from Human descent. They're just bears who've achieved a Human level of sentience.</p>" +
+			"<br><strong>Special:</strong><p> Ursidae add their level x 2 to all Grapple Checks</p>" +
+			"<br><strong>Special:</strong><p> An Ursida's carry weight is always twice the normal amount.</p>" +
+			"<br><strong>Special:</strong><p> Ursidae Unarmed Attacks are treated like standard melee attacks, and deal additional Shatter Damage equal to their level + 3. </p>" +
+			"<br><strong>Level-Up Rate: Slow</strong>";
+			break;
+		case "Geulian":
+			Race.Current = Race.Geulian;
+			divRaceDesc.style.visibility = "visible";
+			divRaceDesc.innerHTML = 
+			"<h2>Geulian</h2><p>(Eel People? Somethin like that...)</p>" +
+			"<br><strong>Strengths: DEX, AGI, HP | Weaknesses: STR, SPD</strong>" +
+			"<br><p>Geulians are frequently clingy and insecure. They don't like to exert themselves, and they make great listeners. Also, they have no bones. Seriously. They just walk upright to look &quot;normal&quot;. Oh, and they leech blood out of things with their wriggly, fat fingers. Gross.</p>" +
+			"<strong>Special:</strong><p> Geulians can see without penalty in darkness.</p>" +
+			"<strong>Special:</strong><p> Geulians add their level to any History Checks.</p>" +
+			"<strong>Special:</strong><p> Geulians can consume the blood of any grappled, unconscious, or otherwise &quot;willing&quot; target. This is treated as an HP leech, and the Geulian may consume up to twice their level in HP per turn. All HP drained is added directly to the Geulian&apos;s current HP. If a Geulian consumes more than its maximum HP it will vomit out any excess blood (1 round vomiting per 2 HP drained.).</p>" +
+			"<br><strong>Level-Up Rate: Moderate</strong>";
+			break;
+	}
+} // end selectRace()
+
+//Class Selector v.2
+/*************************************************************************/
+function selectClass() {
+	switch (selClass.value) {
+		case "Brawler":
+			Class.Current = Class.Brawler;
+			break;
+		case "Champion":
+			Class.Current = Class.Champion;
+			break;
+		case "Doctor":
+			Class.Current = Class.Doctor;
+			break;
+		case "Drifter":
+			Class.Current = Class.Drifter;
+			break;
+		case "Gunslinger":
+			Class.Current = Class.Gunslinger;
+			break;
+		case "Mage":
+			Class.Current = Class.Mage;
+			break;
+		case "Sniper":
+			Class.Current = Class.Sniper;
+			break;
+		case "Soldier":
+			Class.Current = Class.Soldier;
+			break;
+	}	
+} // end selectClass()
+
+//Level Multipliers v.1
+/*************************************************************************/
+function lvlBonus() {
+	// Assign Values to Lvl Bonus txt Boxes
+	txtStatPoints.value = Race.Current.StatPool + (txtLevel.value * 5) - 5;
+	txtSTRBonus.value = Race.Current.STR * txtLevel.value;
+	txtDEXBonus.value = Race.Current.DEX * txtLevel.value;
+	txtAGIBonus.value = Race.Current.AGI * txtLevel.value;
+	txtSPDBonus.value = Race.Current.SPD * txtLevel.value;
+	txtINTBonus.value = Race.Current.INT * txtLevel.value;
+	txtHPBonus.value = (Race.Current.HP + Class.Current.HP) * txtLevel.value;
+	txtManaBonus.value = (Race.Current.Mana + Class.Current.Mana) * txtLevel.value;
+} // end lvlBonus()
+
+function statTotal() {
+	// Assign Values to Total Value txt Boxes
+	txtTotalSTR.value = Race.Current.STR * txtLevel.value;
+	txtTotalDEX.value = Race.Current.DEX * txtLevel.value;
+	txtTotalAGI.value = Race.Current.AGI * txtLevel.value;
+	txtTotalSPD.value = Race.Current.SPD * txtLevel.value;
+	txtTotalINT.value = Race.Current.INT * txtLevel.value;
+	txtTotalHP.value = (Race.Current.HP + Class.Current.HP) * txtLevel.value;
+	txtTotalMana.value = (Race.Current.Mana + Class.Current.Mana) * txtLevel.value;
+} // end statTotal()
+
+//Roll Modifier Check v.3
+/*************************************************************************/
+function rollMod() {
+	if (txtTotalSTR.value > 9) {
+		txtSTRMod.value = '+' + Math.floor(txtTotalSTR.value / 10);
+	} else {
+		txtSTRMod.value = 0;
+	}
+	if (txtTotalDEX.value > 9) {
+		txtDEXMod.value = '+' + Math.floor(txtTotalDEX.value / 10);
+	} else {
+		txtDEXMod.value = 0;
+	}
+	if (txtTotalAGI.value > 9) {
+		txtAGIMod.value = '+' + Math.floor(txtTotalAGI.value / 10);
+	} else {
+		txtAGIMod.value = 0;
+	}
+	if (txtTotalSPD.value > 9) {
+		txtSPDMod.value = '+' + Math.floor(txtTotalSPD.value / 10);
+	} else {
+		txtSPDMod.value = 0;
+	}
+	if (txtTotalINT.value > 9) {
+		txtINTMod.value = '+' + Math.floor(txtTotalINT.value / 10);
+	} else {
+		txtINTMod.value = 0;
+	}
+} // end rollMod()
+
+//Font Color Updater v.2
+/*************************************************************************/
+function valueColor() {
+	//too many IF statements make baby jesus cry
+	if (txtTotalSTR.value > (Race.Current.STR * txtLevel.value)) {
+		txtTotalSTR.style.color = "black";
+	} else {
+		txtTotalSTR.style.color = "red";
+	}
+	if (txtTotalDEX.value > (Race.Current.DEX * txtLevel.value)) {
+		txtTotalDEX.style.color = "black";
+	} else {
+		txtTotalDEX.style.color = "red";
+	}
+	if (txtTotalAGI.value > (Race.Current.AGI * txtLevel.value)) {
+		txtTotalAGI.style.color = "black";
+	} else {
+		txtTotalAGI.style.color = "red";
+	}
+	if (txtTotalSPD.value > (Race.Current.SPD * txtLevel.value)) {
+		txtTotalSPD.style.color = "black";
+	} else {
+		txtTotalSPD.style.color = "red";
+	}
+	if (txtTotalINT.value > (Race.Current.INT * txtLevel.value)) {
+		txtTotalINT.style.color = "black";
+	} else {
+		txtTotalINT.style.color = "red";
+	}
+	if (txtTotalHP.value > ((Race.Current.HP + Class.Current.HP) * txtLevel.value)) {
+		txtTotalHP.style.color = "black";
+	} else {
+		txtTotalHP.style.color = "red";
+	}
+	if (txtTotalMana.value > ((Race.Current.Mana + Class.Current.Mana) * txtLevel.value)) {
+		txtTotalMana.style.color = "black";
+	} else {
+		txtTotalMana.style.color = "red";
+	}
+} // end valueColor()
+
+
+</script>
+
+</head>
+<!-- ****************************************************************** -->
+<body>
+
+<div class="wrap">
+	
+	<form name="frmMain" id="frmMain" action="NextPage.htm" method="get">
+
+	<div id="divErrors"></div>
+<!-- Character Info -->
+<!-- ****************************************************************** -->
+	<div class="top-div">
+		<table>
+			<tr>
+			<td><strong>Race:</strong></td>
+			<td><select id="selRace">
+					<option value="" selected="selected"></option>
+					<option value="Human">Human</option>
+					<option value="Thaen">Thaen</option>
+					<option value="Kitsune">Kitsune</option>
+					<option value="Cheiren">Cheiren</option>
+					<option value="Raukan">Raukan</option>
+					<option value="Geulian">Geulian</option>
+					<option value="Saurian">Saurian</option>
+					<option value="Ursidae">Ursidae</option>
+				</select></td>
+			</tr>
+			<tr>
+			<td><strong>Class:</strong></td>
+			<td><select id="selClass">
+					<option value="" selected="selected"></option>
+					<option value="Brawler">Brawler</option>
+					<option value="Champion">Champion</option>
+					<option value="Doctor">Doctor</option>
+					<option value="Drifter">Drifter</option>
+					<option value="Gunslinger">Gunslinger</option>
+					<option value="Mage">Mage</option>
+					<option value="Sniper">Sniper</option>
+					<option value="Soldier">Soldier</option>
+				</select></td>
+			</tr>
+			<tr>
+			<td><strong>Level:</strong></td>
+			<td><input type="text" name="txtLevel" value="1" size="1" id="txtLevel">
+				<input type="button" value="-" id="btnLevelMinus">
+				<input type="button" value="+" id="btnLevelPlus"></td>
+			</tr>
+		</table>
+	</div>
+
+<!-- Character Stats -->
+<!-- ****************************************************************** -->
+	<hr><br>
+
+	
+	<div class="divStats">
+
+		<table>
+			<tr class="statHeader">
+				<td></td>
+				<td>Lvl Bonus</td>
+				<td>Value</td>
+				<td>Roll Mod</td>
+			</tr>
+			
+			<tr> <!-- STR -->
+				<td class="cssStatTitle tooltip" tooltip="Strength Affects Melee/ Unarmed Damage, Carry Weight, Climbing, etc.">STR</td>
+				<td><input type="text" value="0" name="txtSTRBonus" size="1" id="txtSTRBonus"></td>
+				<td><input type="text" value="0" class="txtStatValue" name="txtTotalSTR" size="1" id="txtTotalSTR"></td>
+				<td><input type="text" value="0" size="1" name="txtSTRMod" id="txtSTRMod"></td>
+				<td class="tablebtn"><input type="button" value="-" id="btnMinusSTR"></td>
+				<td class="tablebtn"><input type="button" value="+" id="btnPlusSTR"></td>
+			</tr>
+			<tr> <!-- DEX -->
+				<td class="cssStatTitle tooltip" tooltip="Dexterity affects Attack Accuracy, Detecting Hidden, Lockpicking, etc.">DEX</td>
+				<td><input type="text" value="0" name="txtDEXBonus" size="1" id="txtDEXBonus"></td>
+				<td><input type="text" value="0" class="txtStatValue" name="txtTotalDEX" size="1" id="txtTotalDEX"></td>
+				<td><input type="text" value="0" size="1" name="txtDEXMod" id="txtDEXMod"></td>
+				<td class="tablebtn"><input type="button" value="-" id="btnMinusDEX"></td>
+				<td class="tablebtn"><input type="button" value="+" id="btnPlusDEX"></td>
+			</tr>
+			<tr> <!-- AGI -->
+				<td class="cssStatTitle tooltip" tooltip="Agility affects Evasion Rolls, Sneaking, Acrobatics, etc">AGI</td>
+				<td><input type="text" value="0" name="txtAGIBonus" size="1" id="txtAGIBonus"></td>
+				<td><input type="text" value="0" class="txtStatValue" name="txtTotalAGI" size="1" id="txtTotalAGI"></td>
+				<td><input type="text" value="0" size="1" name="txtAGIMod" id="txtAGIMod"></td>
+				<td class="tablebtn"><input type="button" value="-" id="btnMinusAGI"></td>
+				<td class="tablebtn"><input type="button" value="+" id="btnPlusAGI"></td>
+			</tr>
+			<tr> <!-- SPD -->
+				<td class="cssStatTitle tooltip" tooltip="Speed affects Movement per Turn, Melee/ Unarmed Hits Count, Combat Sequence, etc.">SPD</td>
+				<td><input type="text" value="0" name="txtSPDBonus" size="1" id="txtSPDBonus"></td>
+				<td><input type="text" value="0" class="txtStatValue" name="txtTotalSPD" size="1" id="txtTotalSPD"></td>
+				<td><input type="text" value="0" size="1" name="txtSPDMod" id="txtSPDMod"></td>
+				<td class="tablebtn"><input type="button" value="-" id="btnMinusSPD"></td>
+				<td class="tablebtn"><input type="button" value="+" id="btnPlusSPD"></td>
+			</tr>
+			<tr> <!-- INT -->
+				<td class="cssStatTitle tooltip" tooltip="Intelligence affects Spell Accuracy, Tool Usage, Lying, etc.">INT</td>
+				<td><input type="text" value="0" name="txtINTBonus" size="1" id="txtINTBonus"></td>
+				<td><input type="text" value="0" class="txtStatValue" name="txtTotalINT" size="1" id="txtTotalINT"></td>
+				<td><input type="text" value="0" size="1" name="txtINTMod" id="txtINTMod"></td>
+				<td class="tablebtn"><input type="button" value="-" id="btnMinusINT"></td>
+				<td class="tablebtn"><input type="button" value="+" id="btnPlusINT"></td>
+			</tr>
+			<tr> <!-- HP -->
+				<td class="cssStatTitle tooltip" tooltip="Hit Points determine the amount of damage a character can take before dying (0HP).">HP</td>
+				<td><input type="text" value="0" name="txtHPBonus" size="1" id="txtHPBonus"></td>
+				<td><input type="text" value="0" class="txtStatValue" name="txtTotalHP" size="1" id="txtTotalHP"></td>
+				<td style="background-color: transparent"></td>
+				<td class="tablebtn"><input type="button" value="-" id="btnMinusHP"></td>
+				<td class="tablebtn"><input type="button" value="+" id="btnPlusHP"></td>
+			</tr>
+			<tr> <!-- Mana -->
+				<td class="cssStatTitle tooltip" tooltip="Mana determines how much magic a character can use without resting.">Mana</td>
+				<td><input type="text" value="0" name="txtManaBonus" size="1" id="txtManaBonus"></td>
+				<td><input type="text" value="0" class="txtStatValue" name="txtTotalMana" size="1" id="txtTotalMana"></td>
+				<td style="background-color: transparent"></td>
+				<td class="tablebtn"><input type="button" value="-" id="btnMinusMana"></td>
+				<td class="tablebtn"><input type="button" value="+" id="btnPlusMana"></td>
+			</tr>
+		</table>
+
+	<hr>
+	<!-- Stat Point Counter -->
+	<strong>Stat Points | </strong><input type="text" value="0" name="txtStatPoints" size="1" id="txtStatPoints">
+
+
+	</div>
+
+	<div class="race-desc" id="divRaceDesc"></div>
+	<div class="class-desc" id="divClassDesc"></div>
+
+</form>
+
+</div>
+
+</body>
+</html>
