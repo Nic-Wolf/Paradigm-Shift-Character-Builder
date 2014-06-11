@@ -46,3 +46,6 @@ As a note to myself, I'd like to see the stat points maintain their used values,
 - Added racial descriptions
 - Added tooltips for Stats
 
+*********************************************************
+6/11/14
+Minor adjustments to header. Also, I'll be keeping the update log on git from here on out.
